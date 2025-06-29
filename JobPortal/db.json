@@ -1,0 +1,43 @@
+{
+  "posts": [
+    {
+      "postId": 1,
+      "postProfile": "Java Developer",
+      "postDesc": "Need to work on ORM, Spring, Web, AOP, REST API",
+      "reqExperience": 3,
+      "postTechStack": [
+        "Java",
+        "Spring",
+        "Hibernate"
+      ],
+      "id": "01b1"
+    },
+    {
+      "postId": 2,
+      "postProfile": "R Developer",
+      "postDesc": "Need to work on ORM, Spring, Web, AOP, REST API",
+      "reqExperience": 3,
+      "postTechStack": [
+        "Java",
+        "Spring",
+        "Hibernate"
+      ],
+      "id": "1654"
+    },
+    {
+      "postId": 3,
+      "postProfile": "Ts Developer",
+      "postDesc": "Need to work on ORM, Spring, Web, AOP, REST API",
+      "reqExperience": 3,
+      "postTechStack": [
+        "Java",
+        "Spring",
+        "Hibernate"
+      ],
+      "id": "37b7"
+    },
+    {
+      "id": "9305"
+    }
+  ]
+}
