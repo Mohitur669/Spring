@@ -6,6 +6,8 @@ import com.mohitur.SpringDataJPA.repo.StudentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class StudentProcessLayer {
 
@@ -14,7 +16,7 @@ public class StudentProcessLayer {
 
     public void addCreateStudent() {
         Student student = new Student();
-        student.setRollNo(101);
+        student.setRoll(101);
         student.setName("Yoyo");
         student.setMarks(78);
 
@@ -27,11 +29,24 @@ public class StudentProcessLayer {
         return studentRepo.save(student);
     }
 
-    public Student findStudent(int roll, String name) {
-        return studentRepo.findStudentByIdAndName(roll, name);
+    public List<Student> findStudents(Integer roll, String name) {
+        if (roll != null && name != null && !name.isBlank()) {
+            return studentRepo.findByRollAndNameIgnoreCase(roll, name);
+        } else if (roll != null) {
+            Student student = studentRepo.findByRoll(roll);
+            return student != null ? List.of(student) : List.of();
+        } else if (name != null && !name.isBlank()) {
+            return studentRepo.findByNameIgnoreCase(name);
+        } else {
+            return List.of();
+        }
     }
 
-    public Student findStudentById(int roll) {
-        return studentRepo.findById(roll);
+    public Student findByRoll(Integer roll) {
+        return studentRepo.findByRoll(roll);
+    }
+
+    public List<Student> findStudentsByName(String name) {
+        return studentRepo.findByNameIgnoreCase(name);
     }
 }

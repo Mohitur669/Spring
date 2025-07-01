@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("students")
 public class StudentController {
@@ -16,8 +18,9 @@ public class StudentController {
     private StudentProcessLayer studentProcessLayer;
 
     @PostMapping("/addStudent")
-    public void addStudent() {
+    public ResponseEntity<String> addStudent() {
         studentProcessLayer.addCreateStudent();
+        return ResponseEntity.ok("Sample student added.");
     }
 
     @PostMapping("/createStudentFromAPI")
@@ -27,13 +30,28 @@ public class StudentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/findStudent")
-    public Student findStudent(@RequestParam("roll") int roll, @RequestParam("name") String name) {
-        return studentProcessLayer.findStudent(roll, name);
+    @GetMapping("/findStudents")
+    public ResponseEntity<?> findStudents(
+            @RequestParam(value = "roll", required = false) Integer roll,
+            @RequestParam(value = "name", required = false) String name) {
+
+        List<Student> students = studentProcessLayer.findStudents(roll, name);
+
+        if (students.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No matching students found.");
+        }
+
+        return ResponseEntity.ok(students);
     }
 
     @GetMapping("/findStudentById")
-    public Student findStudentById(@RequestParam("roll") int roll) {
-        return studentProcessLayer.findStudentById(roll);
+    public ResponseEntity<?> findStudentById(@RequestParam("roll") Integer roll) {
+        Student student = studentProcessLayer.findByRoll(roll);
+
+        if (student == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found with roll: " + roll);
+        }
+
+        return ResponseEntity.ok(student);
     }
 }

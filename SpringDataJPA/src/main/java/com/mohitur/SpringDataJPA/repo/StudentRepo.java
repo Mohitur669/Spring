@@ -10,8 +10,11 @@ import java.util.List;
 @Repository
 public interface StudentRepo extends JpaRepository<Student, Integer> {
 
-    @Query("select pp from Student pp where pp.rollNo = ?1 and pp.name = ?2")
-    public Student findStudentByIdAndName(int rollNo, String name);
+    public Student findByRoll(Integer roll);
 
-    public Student findById(int roll);
+    public List<Student> findByNameIgnoreCase(String name);
+
+    public List<Student> findByRollAndNameIgnoreCase(Integer rollNo, String name);
+
+
 }

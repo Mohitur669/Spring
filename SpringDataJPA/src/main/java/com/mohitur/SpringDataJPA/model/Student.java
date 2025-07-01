@@ -13,7 +13,7 @@ public class Student {
 
     @Id
     @Column(name = "roll_no")
-    private int rollNo;
+    private Integer roll;
 
     @Column(name = "name")
     private String name;
@@ -21,12 +21,12 @@ public class Student {
     @Column(name = "marks")
     private int marks;
 
-    public int getRollNo() {
-        return rollNo;
+    public Integer getRoll() {
+        return roll;
     }
 
-    public void setRollNo(int rollNo) {
-        this.rollNo = rollNo;
+    public void setRoll(Integer roll) {
+        this.roll = roll;
     }
 
     public String getName() {
@@ -49,7 +49,7 @@ public class Student {
     @Override
     public String toString() {
         return "Student{" +
-                "rollNo=" + rollNo +
+                "rollNo=" + roll +
                 ", name='" + name + '\'' +
                 ", marks=" + marks +
                 '}';
