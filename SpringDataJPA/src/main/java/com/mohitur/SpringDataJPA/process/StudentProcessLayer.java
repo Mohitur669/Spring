@@ -34,13 +34,4 @@ public class StudentProcessLayer {
     public Student findStudentById(int roll) {
         return studentRepo.findById(roll);
     }
-
-    public void createNewStudent(Student student) {
-        Student s1 = new Student();
-        s1.setRollNo(student.getRollNo());
-        s1.setName(student.getName());
-        s1.setMarks(student.getMarks());
-
-        studentRepo.save(s1);
-    }
 }

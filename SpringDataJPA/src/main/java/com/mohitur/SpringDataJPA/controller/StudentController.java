@@ -1,4 +1,4 @@
-package com.mohitur.SpringDataJPA.service;
+package com.mohitur.SpringDataJPA.controller;
 
 import com.mohitur.SpringDataJPA.DTO.ApiResponse;
 import com.mohitur.SpringDataJPA.model.Student;
@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("students")
-public class StudentEndPoint {
+public class StudentController {
 
     @Autowired
     private StudentProcessLayer studentProcessLayer;
 
-    @PostMapping("/addCreateStudent")
-    public void addCreateStudent() {
+    @PostMapping("/addStudent")
+    public void addStudent() {
         studentProcessLayer.addCreateStudent();
     }
 
-    @PostMapping("/addCreateStudentAPI")
-    public ResponseEntity<ApiResponse> AddCreateAPI(@RequestBody Student student) {
+    @PostMapping("/createStudentFromAPI")
+    public ResponseEntity<ApiResponse> createStudentFromAPI(@RequestBody Student student) {
         Student savedStudent = studentProcessLayer.addCreateStudentAPI(student);
         ApiResponse response = new ApiResponse("Student created successfully", savedStudent);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -35,12 +35,5 @@ public class StudentEndPoint {
     @GetMapping("/findStudentById")
     public Student findStudentById(@RequestParam("roll") int roll) {
         return studentProcessLayer.findStudentById(roll);
-    }
-
-    @PostMapping("/newStudent")
-    public ResponseEntity<ApiResponse> createNewStudent(@RequestBody Student student) {
-        studentProcessLayer.createNewStudent(student);
-        ApiResponse response = new ApiResponse("Student created successfully via API", student);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }
