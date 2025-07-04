@@ -49,4 +49,14 @@ public class StudentProcessLayer {
     public List<Student> findStudentsByName(String name) {
         return studentRepo.findByNameIgnoreCase(name);
     }
+
+    public Student updateStudent(Student student) {
+        Student existing = studentRepo.findByRoll(student.getRoll());
+        if (existing != null) {
+            existing.setName(student.getName());
+            existing.setMarks(student.getMarks());
+            return studentRepo.save(existing);
+        }
+        return null;
+    }
 }

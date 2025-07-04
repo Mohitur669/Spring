@@ -17,4 +17,5 @@ public interface StudentRepo extends JpaRepository<Student, Integer> {
     public List<Student> findByRollAndNameIgnoreCase(Integer rollNo, String name);
 
 
+
 }

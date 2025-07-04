@@ -1,10 +1,9 @@
 package com.mohitur.SpringDataJPA.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
+
+import java.util.Base64;
 
 @Component
 @Entity
@@ -20,6 +19,13 @@ public class Student {
 
     @Column(name = "marks")
     private int marks;
+
+    @Lob
+    @Column
+    private byte[] profile;
+
+    @Transient
+    private String base64Profile;
 
     public Integer getRoll() {
         return roll;
@@ -45,6 +51,25 @@ public class Student {
         this.marks = marks;
     }
 
+    public byte[] getProfile() {
+        return profile;
+    }
+
+    public void setProfile(byte[] profile) {
+        this.profile = profile;
+    }
+
+    public String getBase64Profile() {
+        return base64Profile;
+    }
+
+    public void setBase64Profile(String base64Profile) {
+        this.base64Profile = base64Profile;
+
+        if (base64Profile != null && !base64Profile.isBlank()) {
+            this.profile = Base64.getDecoder().decode(base64Profile);
+        }
+    }
 
     @Override
     public String toString() {
