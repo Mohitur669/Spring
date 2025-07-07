@@ -4,6 +4,8 @@ import com.mohitur.SpringDataJPA.DTO.ApiResponse;
 import com.mohitur.SpringDataJPA.model.Student;
 import com.mohitur.SpringDataJPA.process.StudentProcessLayer;
 import com.mohitur.SpringDataJPA.repo.StudentRepo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,9 +22,9 @@ import java.util.List;
 @RequestMapping("students")
 public class StudentController {
 
+    private static final Logger log = LogManager.getLogger(StudentController.class);
     @Autowired
     private StudentProcessLayer studentProcessLayer;
-
     @Autowired
     private StudentRepo studentRepo;
 
@@ -64,7 +66,7 @@ public class StudentController {
         return ResponseEntity.ok(student);
     }
 
-    @PutMapping("/updateStudent")
+    @PostMapping("/updateStudent")
     public ResponseEntity<ApiResponse> updateStudent(@RequestBody Student student) {
         Student updated = studentProcessLayer.updateStudent(student);
         if (updated != null) {
@@ -80,12 +82,11 @@ public class StudentController {
             @RequestParam("image") MultipartFile file) {
 
         try {
-            Student student = studentRepo.findByRoll(roll);
+            Student student = studentProcessLayer.findByRoll(roll);
             if (student == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Student not found");
             }
-            student.setProfile(file.getBytes());
-            studentRepo.save(student);
+            studentProcessLayer.uploadProfile(student, file);
             return ResponseEntity.ok("Profile image uploaded successfully");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading file");
@@ -95,34 +96,30 @@ public class StudentController {
     @Transactional
     @GetMapping("/profile")
     public ResponseEntity<byte[]> getProfileImage(@RequestParam("roll") int roll) {
-        Student student = studentRepo.findByRoll(roll);
+        Student student = studentProcessLayer.findByRoll(roll);
         if (student == null || student.getProfile() == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
 
         // Optional: you can check file signature to determine content-type
         byte[] imageBytes = student.getProfile();
-        MediaType mediaType = detectImageType(imageBytes); // see helper below
+        MediaType mediaType = studentProcessLayer.detectImageType(imageBytes); // see helper below
 
         return ResponseEntity.ok()
                 .contentType(mediaType)
                 .body(imageBytes);
     }
 
-    // Helper method to detect image type by magic number
-    private MediaType detectImageType(byte[] imageBytes) {
-        if (imageBytes.length >= 8 &&
-                imageBytes[0] == (byte) 0x89 &&
-                imageBytes[1] == (byte) 0x50 &&
-                imageBytes[2] == (byte) 0x4E &&
-                imageBytes[3] == (byte) 0x47) {
-            return MediaType.IMAGE_PNG;
-        } else if (imageBytes.length >= 3 &&
-                imageBytes[0] == (byte) 0xFF &&
-                imageBytes[1] == (byte) 0xD8 &&
-                imageBytes[2] == (byte) 0xFF) {
-            return MediaType.IMAGE_JPEG;
-        }
-        return MediaType.APPLICATION_OCTET_STREAM;
+    @PostMapping("/deleteStudent")
+    public ResponseEntity<ApiResponse> deleteStudent(@RequestParam("roll") Integer roll) {
+       try {
+           Student deletedStudent = studentProcessLayer.deleteStudent(roll);
+           ApiResponse response = new ApiResponse("Student deleted successfully", deletedStudent);
+           return ResponseEntity.status(HttpStatus.OK).body(response);
+       } catch (IOException ex) {
+           log.debug("Student does not exists!");
+       }
+
+       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
