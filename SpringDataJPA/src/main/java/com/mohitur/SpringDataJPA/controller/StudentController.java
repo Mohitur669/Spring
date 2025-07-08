@@ -3,7 +3,6 @@ package com.mohitur.SpringDataJPA.controller;
 import com.mohitur.SpringDataJPA.DTO.ApiResponse;
 import com.mohitur.SpringDataJPA.model.Student;
 import com.mohitur.SpringDataJPA.process.StudentProcessLayer;
-import com.mohitur.SpringDataJPA.repo.StudentRepo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -23,10 +21,9 @@ import java.util.List;
 public class StudentController {
 
     private static final Logger log = LogManager.getLogger(StudentController.class);
+
     @Autowired
     private StudentProcessLayer studentProcessLayer;
-    @Autowired
-    private StudentRepo studentRepo;
 
     @PostMapping("/addStudent")
     public ResponseEntity<String> addStudent() {
