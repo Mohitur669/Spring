@@ -3,6 +3,8 @@ package com.mohitur.SpringDataJPA.process;
 
 import com.mohitur.SpringDataJPA.model.Student;
 import com.mohitur.SpringDataJPA.repo.StudentRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import java.util.List;
 @Component
 public class StudentProcessLayer {
 
+    private static final Logger log = LoggerFactory.getLogger(StudentProcessLayer.class);
     @Autowired
     private StudentRepo studentRepo;
 

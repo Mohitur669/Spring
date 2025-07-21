@@ -1,33 +1,33 @@
 package com.mohitur.SpringDataJPA.aop;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Aspect
 @Component
 public class MethodLogger {
 
-    private static final Logger logger = LogManager.getLogger(MethodLogger.class);
+    private static final Logger logger = LogManager.getLogger("MethodLogger");
 
-    @Pointcut("execution(* com.mohitur.SpringDataJPA.controller..*(..)) || execution(* com.mohitur.SpringDataJPA.process..*(..))")
-    public void applicationMethods() {
-    }
-
-    @Before("applicationMethods()")
+    @Before("execution(* com.mohitur.SpringDataJPA..*(..))")
     public void logMethodEntry(JoinPoint joinPoint) {
-        logger.info("Entering method: {} with args: {}", joinPoint.getSignature(), joinPoint.getArgs());
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String className = signature.getDeclaringType().getSimpleName(); // Just class name
+        String methodName = signature.getName(); // Just method name
+
+        logger.info("Entering method: {}.{}", className, methodName);
     }
 
-    @AfterReturning(pointcut = "applicationMethods()", returning = "result")
-    public void logMethodExit(JoinPoint joinPoint, Object result) {
-        logger.info("Exiting method: {} with result: {}", joinPoint.getSignature(), result);
-    }
+    @After("execution(* com.mohitur.SpringDataJPA..*(..))")
+    public void logMethodExit(JoinPoint joinPoint) {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        String className = signature.getDeclaringType().getSimpleName();
+        String methodName = signature.getName();
 
-    @AfterThrowing(pointcut = "applicationMethods()", throwing = "ex")
-    public void logExceptions(JoinPoint joinPoint, Throwable ex) {
-        logger.error("Exception in method: {} with message: {}", joinPoint.getSignature(), ex.getMessage(), ex);
+        logger.info("Exiting method: {}.{}", className, methodName);
     }
 }
