@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -80,7 +81,7 @@ public class StudentProcessLayer {
         return MediaType.APPLICATION_OCTET_STREAM;
     }
 
-    public Student deleteStudent(Integer roll) throws IOException{
+    public Student deleteStudent(Integer roll) throws IOException {
         Student deletedStudent = studentRepo.findByRoll(roll);
         studentRepo.delete(deletedStudent);
         return deletedStudent;
@@ -89,5 +90,17 @@ public class StudentProcessLayer {
     public void uploadProfile(Student student, MultipartFile file) throws IOException {
         student.setProfile(file.getBytes());
         studentRepo.save(student);
+    }
+
+    public List<Student> deleteStudentsBulk(List<Integer> rollNumbers) {
+        List<Student> deletedStudents = new ArrayList<>();
+        for (Integer roll : rollNumbers) {
+            Student student = findByRoll(roll);
+            if (student != null) {
+                studentRepo.delete(student);
+                deletedStudents.add(student);
+            }
+        }
+        return deletedStudents;
     }
 }

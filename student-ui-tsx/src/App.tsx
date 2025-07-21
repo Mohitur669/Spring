@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface Student {
     id?: number;
@@ -11,11 +11,13 @@ const App: React.FC = () => {
     const [addForm, setAddForm] = useState({ roll: '', name: '', marks: '' });
     const [searchForm, setSearchForm] = useState({ roll: '', name: '' });
     const [searchResults, setSearchResults] = useState<Student[]>([]);
+    const [selectedRolls, setSelectedRolls] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState('');
+    const [searchMessage, setSearchMessage] = useState('');
+    const [addMessage, setAddMessage] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const messageTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Handle form changes
     const handleAddFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setAddForm(prev => ({ ...prev, [name]: value }));
@@ -26,13 +28,14 @@ const App: React.FC = () => {
         setSearchForm(prev => ({ ...prev, [name]: value }));
     };
 
-    // Add or Update student
     const handleAddStudent = async (e: React.FormEvent) => {
         e.preventDefault();
-
         const { roll, name, marks } = addForm;
         if (!roll || !name || !marks) {
-            setMessage('Please fill all fields');
+            setAddMessage('Please fill all fields');
+            // Hide message after 2 seconds
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
             return;
         }
 
@@ -51,29 +54,35 @@ const App: React.FC = () => {
             });
 
             if (response.ok) {
-                setMessage(isEditing ? 'Student updated successfully!' : 'Student added successfully!');
+                setAddMessage(isEditing ? 'Student updated successfully!' : 'Student added');
                 setAddForm({ roll: '', name: '', marks: '' });
                 setIsEditing(false);
-                handleSearchStudent({ preventDefault: () => {} } as React.FormEvent);
+                setSelectedRolls([]);
+                // Hide message after 2 seconds
+                if (messageTimeout.current) clearTimeout(messageTimeout.current);
+                messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
             } else {
                 const errorText = await response.text();
                 throw new Error(`Failed: ${errorText}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            setMessage('Error saving student.');
+            setAddMessage('Error saving student.');
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
         } finally {
             setLoading(false);
         }
     };
 
-    // Search student
     const handleSearchStudent = async (e: React.FormEvent) => {
         e.preventDefault();
-
         const { roll, name } = searchForm;
         if (!roll && !name) {
-            setMessage('Please provide Roll or Name');
+            setSearchMessage('Please provide Roll or Name');
+            // Clear any previous timeout
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setSearchMessage(''), 2000);
             return;
         }
 
@@ -91,21 +100,25 @@ const App: React.FC = () => {
             if (contentType?.includes('application/json')) {
                 const data: Student[] = await response.json();
                 setSearchResults(data);
-                setMessage(data.length ? `Found ${data.length} student(s)` : 'No students found.');
+                setSelectedRolls([]);
+                setSearchMessage(data.length ? `Found ${data.length} student(s)` : 'No students found.');
             } else {
                 setSearchResults([]);
-                setMessage('Invalid response format');
+                setSearchMessage('Invalid response format');
             }
         } catch (error) {
             console.error(error);
-            setMessage('Error fetching students.');
+            setSearchMessage('Error fetching students.');
             setSearchResults([]);
         } finally {
             setLoading(false);
+            // Clear any previous timeout
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            // Hide message after 2 seconds
+            messageTimeout.current = setTimeout(() => setSearchMessage(''), 2000);
         }
     };
 
-    // Populate form for update
     const handleEditStudent = (student: Student) => {
         setAddForm({
             roll: student.roll.toString(),
@@ -114,6 +127,29 @@ const App: React.FC = () => {
         });
         setIsEditing(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteSelected = async () => {
+        if (!window.confirm("Are you sure you want to delete selected students?")) return;
+
+        setLoading(true);
+        try {
+            for (const roll of selectedRolls) {
+                await fetch(`/students/deleteStudent?roll=${roll}`, { method: 'POST' });
+            }
+            setAddMessage(`${selectedRolls.length} student(s) deleted successfully.`);
+            setSelectedRolls([]);
+            handleSearchStudent({ preventDefault: () => {} } as React.FormEvent);
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
+        } catch (err) {
+            console.error(err);
+            setAddMessage('Error deleting students.');
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -142,10 +178,7 @@ const App: React.FC = () => {
                                 }
                                 handleAddFormChange(e);
                             }}
-                            onFocus={() => {
-                                if (isEditing) alert('Cannot update Roll No');
-                            }}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                             disabled={isEditing}
                         />
 
@@ -155,7 +188,7 @@ const App: React.FC = () => {
                             placeholder="Name"
                             value={addForm.name}
                             onChange={handleAddFormChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                         />
 
                         <input
@@ -164,7 +197,7 @@ const App: React.FC = () => {
                             placeholder="Marks"
                             value={addForm.marks}
                             onChange={handleAddFormChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                         />
 
                         <button
@@ -175,6 +208,13 @@ const App: React.FC = () => {
                             {loading ? (isEditing ? 'Updating...' : 'Adding...') : isEditing ? 'Update' : 'Add Student'}
                         </button>
                     </form>
+                    {addMessage && (
+                        <div className={`p-4 rounded-lg mt-6 ${addMessage.includes('Error') || addMessage.includes('Please') ?
+                            'bg-red-100 text-red-700 border border-red-300' :
+                            'bg-green-100 text-green-700 border border-green-300'}`}>
+                            {addMessage}
+                        </div>
+                    )}
                 </div>
 
                 {/* Search Section */}
@@ -188,7 +228,7 @@ const App: React.FC = () => {
                             placeholder="Search by Roll"
                             value={searchForm.roll}
                             onChange={handleSearchFormChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                         />
 
                         <input
@@ -197,27 +237,27 @@ const App: React.FC = () => {
                             placeholder="Search by Name"
                             value={searchForm.name}
                             onChange={handleSearchFormChange}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg"
                         />
 
                         <button
                             type="submit"
                             disabled={loading}
-                            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 disabled:opacity-50"
+                            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg"
                         >
                             {loading ? 'Searching...' : 'Search'}
                         </button>
                     </form>
+                    {searchMessage && (
+                        <div className={`p-4 rounded-lg mt-6 ${searchMessage.includes('Error') || searchMessage.includes('Please') ?
+                            'bg-red-100 text-red-700 border border-red-300' :
+                            'bg-green-100 text-green-700 border border-green-300'}`}>
+                            {searchMessage}
+                        </div>
+                    )}
                 </div>
 
-                {/* Message */}
-                {message && (
-                    <div className={`p-4 rounded-lg mb-6 ${message.includes('Error') || message.includes('Please') ?
-                        'bg-red-100 text-red-700 border border-red-300' :
-                        'bg-green-100 text-green-700 border border-green-300'}`}>
-                        {message}
-                    </div>
-                )}
+
 
                 {/* Results */}
                 {searchResults.length > 0 && (
@@ -227,25 +267,53 @@ const App: React.FC = () => {
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-gray-50">
-                                        <th className="border px-4 py-3">Roll</th>
-                                        <th className="border px-4 py-3">Name</th>
-                                        <th className="border px-4 py-3">Marks</th>
-                                        <th className="border px-4 py-3">Actions</th>
+                                        <th className="border px-4 py-3 text-center">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedRolls.length === searchResults.length && searchResults.length > 0}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setSelectedRolls(searchResults.map(s => s.roll));
+                                                    } else {
+                                                        setSelectedRolls([]);
+                                                    }
+                                                }}
+                                            />
+                                        </th>
+                                        <th className="border px-4 py-3 text-center">Roll</th>
+                                        <th className="border px-4 py-3 text-center">Name</th>
+                                        <th className="border px-4 py-3 text-center">Marks</th>
+                                        <th className="border px-4 py-3 text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {searchResults.map((student, index) => (
                                         <tr key={student.id || index} className="hover:bg-gray-50">
-                                            <td className="border px-4 py-3">{student.roll}</td>
-                                            <td className="border px-4 py-3">{student.name}</td>
-                                            <td className="border px-4 py-3">{student.marks}</td>
-                                            <td className="border px-4 py-3">
-                                                <button
-                                                    className="text-blue-600 hover:underline"
-                                                    onClick={() => handleEditStudent(student)}
-                                                >
-                                                    Edit
-                                                </button>
+                                            <td className="border px-4 py-3 text-center">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedRolls.includes(student.roll)}
+                                                    onChange={() => {
+                                                        setSelectedRolls((prev) =>
+                                                            prev.includes(student.roll)
+                                                                ? prev.filter(roll => roll !== student.roll)
+                                                                : [...prev, student.roll]
+                                                        );
+                                                    }}
+                                                />
+                                            </td>
+                                            <td className="border px-4 py-3 text-center">{student.roll}</td>
+                                            <td className="border px-4 py-3 text-center">{student.name}</td>
+                                            <td className="border px-4 py-3 text-center">{student.marks}</td>
+                                            <td className="border px-4 py-3 text-center">
+                                                <div className="flex items-center justify-center h-full">
+                                                    <button
+                                                        className="text-blue-600 hover:underline"
+                                                        onClick={() => handleEditStudent(student)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -253,6 +321,16 @@ const App: React.FC = () => {
                             </table>
                         </div>
                     </div>
+                )}
+
+                {/* Delete Selected Button */}
+                {selectedRolls.length > 0 && (
+                    <button
+                        onClick={handleDeleteSelected}
+                        className="mb-4 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg"
+                    >
+                        Delete Selected ({selectedRolls.length})
+                    </button>
                 )}
             </div>
         </div>

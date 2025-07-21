@@ -119,4 +119,20 @@ public class StudentController {
 
        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
+    @PostMapping("/deleteStudentsBulk")
+    public ResponseEntity<ApiResponse> deleteStudents(@RequestBody List<Integer> rollNumbers) {
+        if (rollNumbers == null || rollNumbers.isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("No roll numbers provided", null));
+        }
+
+        List<Student> deleted = studentProcessLayer.deleteStudentsBulk(rollNumbers);
+
+        if (deleted.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse("No matching students found", null));
+        }
+
+        return ResponseEntity.ok(new ApiResponse("Students deleted successfully", deleted));
+    }
+
 }
