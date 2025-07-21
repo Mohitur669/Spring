@@ -1,0 +1,44 @@
+[2025-07-21 18:23:27] [INFO ] SpringDataJpaApplication - Starting SpringDataJpaApplication using Java 21.0.7 with PID 776920 (/home/cyberbully/Documents/D Drive/My Study/SpringProjects/SpringDataJPA/target/classes started by cyberbully in /home/cyberbully/Documents/D Drive/My Study/SpringProjects/SpringDataJPA)
+[2025-07-21 18:23:27] [DEBUG] SpringDataJpaApplication - Running with Spring Boot v3.5.3, Spring v6.2.8
+[2025-07-21 18:23:27] [INFO ] SpringDataJpaApplication - No active profile set, falling back to 1 default profile: "default"
+[2025-07-21 18:23:27] [INFO ] RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+[2025-07-21 18:23:27] [INFO ] RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 21 ms. Found 1 JPA repository interface.
+[2025-07-21 18:23:28] [INFO ] TomcatWebServer - Tomcat initialized with port 8080 (http)
+[2025-07-21 18:23:28] [INFO ] Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+[2025-07-21 18:23:28] [INFO ] StandardService - Starting service [Tomcat]
+[2025-07-21 18:23:28] [INFO ] StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.42]
+[2025-07-21 18:23:28] [INFO ] [/] - Initializing Spring embedded WebApplicationContext
+[2025-07-21 18:23:28] [INFO ] ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 963 ms
+[2025-07-21 18:23:28] [INFO ] LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+[2025-07-21 18:23:28] [INFO ] Version - HHH000412: Hibernate ORM core version 6.6.18.Final
+[2025-07-21 18:23:28] [INFO ] RegionFactoryInitiator - HHH000026: Second-level cache disabled
+[2025-07-21 18:23:28] [INFO ] SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+[2025-07-21 18:23:28] [INFO ] HikariDataSource - HikariPool-1 - Starting...
+[2025-07-21 18:23:28] [INFO ] HikariPool - HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3d405fe5
+[2025-07-21 18:23:28] [INFO ] HikariDataSource - HikariPool-1 - Start completed.
+[2025-07-21 18:23:28] [INFO ] pooling - HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 17.5
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+[2025-07-21 18:23:29] [INFO ] JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+[2025-07-21 18:23:29] [INFO ] LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+[2025-07-21 18:23:29] [WARN ] JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+[2025-07-21 18:23:29] [INFO ] EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+[2025-07-21 18:23:29] [INFO ] Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+[2025-07-21 18:23:29] [INFO ] TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+[2025-07-21 18:23:29] [INFO ] SpringDataJpaApplication - Started SpringDataJpaApplication in 2.967 seconds (process running for 3.654)
+[2025-07-21 18:23:29] [INFO ] MethodLogger - Entering method: ResponseEntity com.mohitur.SpringDataJPA.controller.StudentController.addStudent() with args: []
+[2025-07-21 18:23:29] [INFO ] MethodLogger - Entering method: void com.mohitur.SpringDataJPA.process.StudentProcessLayer.addCreateStudent() with args: []
+[2025-07-21 18:23:30] [INFO ] MethodLogger - Exiting method: void com.mohitur.SpringDataJPA.process.StudentProcessLayer.addCreateStudent() with result: null
+[2025-07-21 18:23:30] [INFO ] MethodLogger - Exiting method: ResponseEntity com.mohitur.SpringDataJPA.controller.StudentController.addStudent() with result: <200 OK OK,Sample student added.,[]>
+[2025-07-21 18:23:30] [INFO ] [/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+[2025-07-21 18:23:30] [INFO ] DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+[2025-07-21 18:23:30] [INFO ] DispatcherServlet - Completed initialization in 2 ms
+[2025-07-21 18:24:10] [INFO ] MethodLogger - Entering method: ResponseEntity com.mohitur.SpringDataJPA.controller.StudentController.findStudentById(Integer) with args: [5]
+[2025-07-21 18:24:10] [INFO ] MethodLogger - Entering method: Student com.mohitur.SpringDataJPA.process.StudentProcessLayer.findByRoll(Integer) with args: [5]
+[2025-07-21 18:24:10] [INFO ] MethodLogger - Exiting method: Student com.mohitur.SpringDataJPA.process.StudentProcessLayer.findByRoll(Integer) with result: Student{rollNo=5, name='Nagma', marks=99}
+[2025-07-21 18:24:10] [INFO ] MethodLogger - Exiting method: ResponseEntity com.mohitur.SpringDataJPA.controller.StudentController.findStudentById(Integer) with result: <200 OK OK,Student{rollNo=5, name='Nagma', marks=99},[]>
