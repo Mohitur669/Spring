@@ -135,4 +135,10 @@ public class StudentController {
         return ResponseEntity.ok(new ApiResponse("Students deleted successfully", deleted));
     }
 
+    @PostMapping("/uploadExcel")
+    public ResponseEntity<String> uploadExcel(@RequestParam("file") MultipartFile file) {
+        return studentProcessLayer.uploadExcel(file);
+    }
+
+
 }

@@ -3,16 +3,24 @@ package com.mohitur.SpringDataJPA.process;
 
 import com.mohitur.SpringDataJPA.model.Student;
 import com.mohitur.SpringDataJPA.repo.StudentRepo;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class StudentProcessLayer {
@@ -106,4 +114,38 @@ public class StudentProcessLayer {
         }
         return deletedStudents;
     }
+
+    public ResponseEntity<String> uploadExcel(MultipartFile file) {
+        try (InputStream is = file.getInputStream()) {
+            Workbook workbook = new XSSFWorkbook(is);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (Row row : sheet) {
+                if (row.getRowNum() == 0) continue; // skip header
+                int roll = (int) row.getCell(0).getNumericCellValue();
+                String name = row.getCell(1).getStringCellValue();
+                int marks = (int) row.getCell(2).getNumericCellValue();
+
+                Optional<Student> existing = studentRepo.findById(roll);
+                if (existing.isPresent()) {
+                    Student s = existing.get();
+                    s.setName(name);
+                    s.setMarks(marks);
+                    studentRepo.save(s);
+                } else {
+                    Student s = new Student();
+                    s.setRoll(roll);
+                    s.setName(name);
+                    s.setMarks(marks);
+                    studentRepo.save(s);
+                }
+            }
+
+            return ResponseEntity.ok("Excel processed successfully");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Excel format");
+        }
+    }
+
 }

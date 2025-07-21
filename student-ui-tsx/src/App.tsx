@@ -207,6 +207,45 @@ const App: React.FC = () => {
                         >
                             {loading ? (isEditing ? 'Updating...' : 'Adding...') : isEditing ? 'Update' : 'Add Student'}
                         </button>
+
+                        <label className="inline-block bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg cursor-pointer transition duration-200 ml-4 ">
+                            Upload Students
+                            <input
+                                type="file"
+                                accept=".xlsx, .xls"
+                                onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+
+                                    const formData = new FormData();
+                                    formData.append("file", file);
+
+                                    try {
+                                        setLoading(true);
+                                        const response = await fetch("/students/uploadExcel", {
+                                            method: "POST",
+                                            body: formData,
+                                        });
+
+                                        const text = await response.text();
+                                        setAddMessage(text);
+                                        if (response.ok) {
+                                            setSearchResults([]);
+                                            setAddForm({ roll: '', name: '', marks: '' });
+                                            setSearchForm({ roll: '', name: '' });
+                                        }
+                                    } catch (error) {
+                                        console.error("Upload error:", error);
+                                        setAddMessage("Error uploading Excel");
+                                    } finally {
+                                        if (messageTimeout.current) clearTimeout(messageTimeout.current);
+                                        messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
+                                        setLoading(false);
+                                    }
+                                }}
+                                className="hidden"
+                            />
+                        </label>
                     </form>
                     {addMessage && (
                         <div className={`p-4 rounded-lg mt-6 ${addMessage.includes('Error') || addMessage.includes('Please') ?
