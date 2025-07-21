@@ -140,3 +140,11 @@
 [2025-07-21 20:22:43] [INFO ] MethodLogger - Exiting method: CrudRepository.save
 [2025-07-21 20:22:43] [INFO ] MethodLogger - Exiting method: StudentProcessLayer.uploadExcel
 [2025-07-21 20:22:43] [INFO ] MethodLogger - Exiting method: StudentController.uploadExcel
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Entering method: StudentController.createStudentFromAPI
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Entering method: StudentProcessLayer.addCreateStudentAPI
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Entering method: ListCrudRepository.findAll
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Exiting method: ListCrudRepository.findAll
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Entering method: CrudRepository.save
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Exiting method: CrudRepository.save
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Exiting method: StudentProcessLayer.addCreateStudentAPI
+[2025-07-21 20:43:39] [INFO ] MethodLogger - Exiting method: StudentController.createStudentFromAPI

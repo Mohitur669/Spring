@@ -39,6 +39,30 @@ const App: React.FC = () => {
             return;
         }
 
+        if (parseInt(roll) < 0 && parseInt(marks) < 0) {
+            setAddMessage('Roll number and Marks cannot be negative');
+            // Hide message after 2 seconds
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
+            return;
+        }
+
+        if (parseInt(roll) < 0) {
+            setAddMessage('Roll number cannot be negative');
+            // Hide message after 2 seconds
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
+            return;
+        }
+
+        if (parseInt(marks) < 0) {
+            setAddMessage('Marks cannot be negative');
+            // Hide message after 2 seconds
+            if (messageTimeout.current) clearTimeout(messageTimeout.current);
+            messageTimeout.current = setTimeout(() => setAddMessage(''), 2000);
+            return;
+        }
+
         try {
             setLoading(true);
             const studentData = {
@@ -248,9 +272,15 @@ const App: React.FC = () => {
                         </label>
                     </form>
                     {addMessage && (
-                        <div className={`p-4 rounded-lg mt-6 ${addMessage.includes('Error') || addMessage.includes('Please') ?
-                            'bg-red-100 text-red-700 border border-red-300' :
-                            'bg-green-100 text-green-700 border border-green-300'}`}>
+                        <div className={`p-4 rounded-lg mt-6 ${[
+                            'Error',
+                            'Please',
+                            'cannot be negative',
+                            'failed'
+                        ].some(msg => addMessage.includes(msg))
+                            ? 'bg-red-100 text-red-700 border border-red-300'
+                            : 'bg-green-100 text-green-700 border border-green-300'
+                            }`}>
                             {addMessage}
                         </div>
                     )}
