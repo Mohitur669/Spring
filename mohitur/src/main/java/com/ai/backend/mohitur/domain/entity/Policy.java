@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-// REMOVE THIS: import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,6 +44,7 @@ public class Policy {
     private PolicyStatus status;
 
     @OneToMany(mappedBy = "policy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference  // ← This prevents infinite loop
     private List<Member> members = new ArrayList<>();
 
     @CreationTimestamp
@@ -52,6 +53,7 @@ public class Policy {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    // Constructors
     public Policy(String policyType, BigDecimal premiumAmount,
                   LocalDate startDate, LocalDate endDate) {
         this.policyNumber = PolicyNumber.generate();
@@ -62,6 +64,7 @@ public class Policy {
         this.status = PolicyStatus.ACTIVE;
     }
 
+    // Business methods
     public void addMember(Member member) {
         members.add(member);
         member.setPolicy(this);
@@ -69,5 +72,13 @@ public class Policy {
 
     public String getPolicyNumberValue() {
         return policyNumber != null ? policyNumber.getValue() : null;
+    }
+
+    public boolean canAddMembers() {
+        return status == PolicyStatus.ACTIVE;
+    }
+
+    public int getTotalMembers() {
+        return members != null ? members.size() : 0;
     }
 }

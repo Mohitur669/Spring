@@ -35,33 +35,36 @@ public class MemberService {
         Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new BusinessException("Policy not found with id: " + policyId));
 
+        // Check if policy allows adding members
+        if (!policy.canAddMembers()) {
+            throw new BusinessException("Cannot add members to policy with status: " + policy.getStatus());
+        }
+
         // Check for duplicate email
-        if (memberRepository.findByEmail(request.getEmail()).isPresent()) {
+        if (memberRepository.findByContactInfoEmail(request.getEmail()).isPresent()) {
             throw new BusinessException("Member with email already exists: " + request.getEmail());
         }
 
+        // Create ContactInfo value object
+        ContactInfo contactInfo = ContactInfo.of(
+                request.getEmail(),
+                request.getPhoneNumber(),
+                request.getAddress(),
+                request.getEmergencyContact()
+        );
+
+        // Create Member entity
         Member member = new Member(
                 request.getFirstName(),
                 request.getLastName(),
-                request.getEmail(),
-                request.getPhoneNumber(),
                 request.getDateOfBirth(),
+                contactInfo,
                 request.getMemberType()
         );
 
-        // Update optional fields through ContactInfo
-        if (request.getAddress() != null || request.getEmergencyContact() != null) {
-            ContactInfo updatedContactInfo = ContactInfo.of(
-                    request.getEmail(),
-                    request.getPhoneNumber(),
-                    request.getAddress(),
-                    request.getEmergencyContact()
-            );
-            member.setContactInfo(updatedContactInfo);
-        }
-
         member.setOccupation(request.getOccupation());
 
+        // Add member to policy
         policy.addMember(member);
         Member savedMember = memberRepository.save(member);
 
@@ -80,18 +83,17 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new BusinessException("Member not found with id: " + memberId));
 
+        // Update basic fields
         member.setFirstName(request.getFirstName());
         member.setLastName(request.getLastName());
         member.setOccupation(request.getOccupation());
 
-        // Update ContactInfo with new values
-        ContactInfo updatedContactInfo = ContactInfo.of(
-                member.getEmail(), // Keep existing email
+        // Update ContactInfo
+        member.updateContactInfo(
                 request.getPhoneNumber(),
                 request.getAddress(),
                 request.getEmergencyContact()
         );
-        member.setContactInfo(updatedContactInfo);
 
         return memberRepository.save(member);
     }
@@ -110,7 +112,7 @@ public class MemberService {
 
     public List<Member> searchMembers(String email, String memberType) {
         if (email != null && !email.isEmpty()) {
-            return memberRepository.findByEmail(email)
+            return memberRepository.findByContactInfoEmail(email)
                     .map(List::of)
                     .orElse(List.of());
         }

@@ -4,6 +4,7 @@ import com.ai.backend.mohitur.controller.request.CreatePolicyRequest;
 import com.ai.backend.mohitur.domain.entity.Policy;
 import com.ai.backend.mohitur.domain.entity.PolicyStatus;
 import com.ai.backend.mohitur.exception.BusinessException;
+import com.ai.backend.mohitur.exception.ValidationException;
 import com.ai.backend.mohitur.repository.MemberRepository;
 import com.ai.backend.mohitur.repository.PolicyRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,13 @@ public class PolicyService {
 
     @Transactional(readOnly = true)
     public Optional<Policy> findByPolicyNumber(String policyNumber) {
-        return policyRepository.findByPolicyNumber(policyNumber);
+        log.info("Finding policy by number: {}", policyNumber);
+        if (policyNumber == null || policyNumber.trim().isEmpty()) {
+            log.warn("Policy number is null or empty");
+            throw new ValidationException("Policy number cannot be null or empty");
+        }
+
+        return policyRepository.findByPolicyNumberValue(policyNumber.trim());
     }
 
     @Transactional(readOnly = true)
@@ -56,8 +63,7 @@ public class PolicyService {
     }
 
     public Policy updatePolicyStatus(Long policyId, PolicyStatus status) {
-        Policy policy = policyRepository.findById(policyId)
-                .orElseThrow(() -> new BusinessException("Policy not found with id: " + policyId));
+        Policy policy = policyRepository.findById(policyId).orElseThrow(() -> new BusinessException("Policy not found with id: " + policyId));
 
         policy.setStatus(status);
         return policyRepository.save(policy);

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-// REMOVE THIS: import org.springframework.data.annotation.Id;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class Member {
-    @Id  // This is now jakarta.persistence.Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -40,6 +40,7 @@ public class Member {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "policy_id", nullable = false)
+    @JsonBackReference  // ← This prevents the circular reference
     private Policy policy;
 
     @CreationTimestamp
@@ -48,16 +49,7 @@ public class Member {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    public Member(String firstName, String lastName, String email, String phoneNumber,
-                  LocalDate dateOfBirth, MemberType memberType) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.dateOfBirth = dateOfBirth;
-        this.contactInfo = ContactInfo.of(email, phoneNumber);
-        this.memberType = memberType;
-    }
-
-    // Keep the existing constructor too
+    // Constructors
     public Member(String firstName, String lastName, LocalDate dateOfBirth,
                   ContactInfo contactInfo, MemberType memberType) {
         this.firstName = firstName;
@@ -67,6 +59,17 @@ public class Member {
         this.memberType = memberType;
     }
 
+    // Additional constructor for service layer
+    public Member(String firstName, String lastName, String email, String phoneNumber,
+                  LocalDate dateOfBirth, MemberType memberType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.dateOfBirth = dateOfBirth;
+        this.contactInfo = ContactInfo.of(email, phoneNumber);
+        this.memberType = memberType;
+    }
+
+    // Business methods
     public String getFullName() {
         return firstName + " " + lastName;
     }
@@ -78,5 +81,24 @@ public class Member {
 
     public String getPhoneNumber() {
         return contactInfo != null ? contactInfo.getPhoneNumber() : null;
+    }
+
+    public String getAddress() {
+        return contactInfo != null ? contactInfo.getAddress() : null;
+    }
+
+    public String getEmergencyContact() {
+        return contactInfo != null ? contactInfo.getEmergencyContact() : null;
+    }
+
+    public void updateContactInfo(String phoneNumber, String address, String emergencyContact) {
+        if (this.contactInfo != null) {
+            this.contactInfo = ContactInfo.of(
+                    this.contactInfo.getEmail(),
+                    phoneNumber,
+                    address,
+                    emergencyContact
+            );
+        }
     }
 }

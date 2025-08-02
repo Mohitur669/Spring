@@ -4,6 +4,8 @@ import com.ai.backend.mohitur.controller.request.CreatePolicyRequest;
 import com.ai.backend.mohitur.controller.request.UpdatePolicyStatusRequest;
 import com.ai.backend.mohitur.controller.response.ApiResponse;
 import com.ai.backend.mohitur.domain.entity.Policy;
+import com.ai.backend.mohitur.exception.BusinessException;
+import com.ai.backend.mohitur.exception.ValidationException;
 import com.ai.backend.mohitur.service.PolicyService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,46 +29,39 @@ public class PolicyController {
         this.policyService = policyService;
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Policy>> createPolicy(
-            @Valid @RequestBody CreatePolicyRequest request) {
-
+    @PostMapping("/createPolicy")
+    public ResponseEntity<ApiResponse<Policy>> createPolicy(@Valid @RequestBody CreatePolicyRequest request) {
         Policy policy = policyService.createPolicy(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Policy created successfully", policy));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Policy created successfully", policy));
     }
 
-    @GetMapping
+    @GetMapping("/getAllPolicies")
     public ResponseEntity<ApiResponse<List<Policy>>> getAllPolicies() {
         List<Policy> policies = policyService.findAllPolicies();
-        return ResponseEntity.ok(
-                ApiResponse.success("Policies retrieved successfully", policies));
+        return ResponseEntity.ok(ApiResponse.success("Policies retrieved successfully", policies));
     }
 
-    @GetMapping("/{policyNumber}")
-    public ResponseEntity<ApiResponse<Policy>> getPolicyByNumber(
-            @PathVariable String policyNumber) {
+    @GetMapping("/getPolicyByNumber")
+    public ResponseEntity<ApiResponse<Policy>> getPolicyByNumber(@RequestParam String policyNumber) {
+        log.info("Getting policy by number: {}", policyNumber);
 
         return policyService.findByPolicyNumber(policyNumber)
-                .map(policy -> ResponseEntity.ok(
-                        ApiResponse.success("Policy found", policy)))
-                .orElse(ResponseEntity.notFound().build());
+                .map(policy -> ResponseEntity.ok(ApiResponse.success("Policy found", policy)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(ApiResponse.error("Policy not found with number: " + policyNumber)));
     }
 
-    @PutMapping("/{policyId}/status")
-    public ResponseEntity<ApiResponse<Policy>> updatePolicyStatus(
-            @PathVariable Long policyId,
-            @Valid @RequestBody UpdatePolicyStatusRequest request) {
 
+    @PutMapping("/updatePolicyStatus/status")
+    public ResponseEntity<ApiResponse<Policy>> updatePolicyStatus(@Valid @RequestBody UpdatePolicyStatusRequest request) {
+        Long policyId = request.getPolicyId();
         Policy policy = policyService.updatePolicyStatus(policyId, request.getStatus());
-        return ResponseEntity.ok(
-                ApiResponse.success("Policy status updated successfully", policy));
+        return ResponseEntity.ok(ApiResponse.success("Policy status updated successfully", policy));
     }
 
-    @DeleteMapping("/{policyId}")
-    public ResponseEntity<ApiResponse<Void>> deletePolicy(@PathVariable Long policyId) {
+    @DeleteMapping("/deletePolicy")
+    public ResponseEntity<ApiResponse<Void>> deletePolicy(@RequestParam Long policyId) {
         policyService.deletePolicy(policyId);
-        return ResponseEntity.ok(
-                ApiResponse.success("Policy deleted successfully", null));
+        return ResponseEntity.ok(ApiResponse.success("Policy deleted successfully", null));
     }
 }

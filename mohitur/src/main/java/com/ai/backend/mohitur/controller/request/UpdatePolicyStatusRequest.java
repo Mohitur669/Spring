@@ -14,5 +14,8 @@ public class UpdatePolicyStatusRequest {
     @NotNull(message = "Policy status is required")
     private PolicyStatus status;
 
+    @NotNull(message = "Policy ID is required")
+    private Long policyId;
+
     private String reason; // Optional reason for status change
 }
