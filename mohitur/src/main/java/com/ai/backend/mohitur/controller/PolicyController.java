@@ -47,8 +47,7 @@ public class PolicyController {
 
         return policyService.findByPolicyNumber(policyNumber)
                 .map(policy -> ResponseEntity.ok(ApiResponse.success("Policy found", policy)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(ApiResponse.error("Policy not found with number: " + policyNumber)));
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error("Policy not found with number: " + policyNumber)));
     }
 
 

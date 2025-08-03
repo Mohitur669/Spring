@@ -1,6 +1,5 @@
 package com.ai.backend.mohitur.controller.request;
 
-
 import com.ai.backend.mohitur.domain.entity.MemberType;
 import jakarta.validation.constraints.*;
 import lombok.Data;
@@ -13,6 +12,9 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateMemberRequest {
+
+    @NotNull(message = "Policy ID is required")
+    private Long policyId;
 
     @NotBlank(message = "First name is required")
     @Size(min = 1, max = 50, message = "First name must be between 1 and 50 characters")

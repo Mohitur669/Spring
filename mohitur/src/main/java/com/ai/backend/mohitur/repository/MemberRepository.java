@@ -21,4 +21,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m WHERE m.memberType = :type")
     List<Member> findByMemberType(@Param("type") MemberType type);
+
+    @Query("SELECT COUNT(m) FROM Member m WHERE m.policy.id = :policyId")
+    long countByPolicyId(@Param("policyId") Long policyId);
 }
